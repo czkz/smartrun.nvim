@@ -91,6 +91,12 @@ M.run = function()
       end
     end
   end
+  if not cmd then
+    local action = 'chmod +x ' .. escape(fname)
+    cmd = 'history -c; clear; echo -n ' .. action .. '"? [y/N] "; ' ..
+      'read -n1 ans; [ "$?" = 0 -a "$ans" = "" ] && ans=n || echo; ' ..
+      'if [ "$ans" = "y" ]; then ' .. action .. ' && exit; else exit; fi'
+  end
   require'toggleterm'.exec(cmd)
 end
 
