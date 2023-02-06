@@ -76,16 +76,18 @@ M.run = function()
     local clients = vim.lsp.buf_get_clients()
     if #clients > 0 then
       local root_dir = clients[1].config.root_dir
-      local function isft(fts)
-        return has(clients[1].config.filetypes, fts)
-      end
-      local function with_file(rel_path)
-        return vim.fn.filereadable(root_dir .. '/' .. rel_path) == 1
-      end
-      if isft{'c', 'cpp'} and with_file 'meson.build' then
-        cmd = meson_buildandrun_cmd(root_dir, fname)
-      elseif isft{'javascript', 'typescript'} and with_file 'package.json' then
-        cmd = wrap_cmd('npm --prefix ' .. escape(root_dir) .. ' start')
+      if root_dir then
+        local function isft(fts)
+          return has(clients[1].config.filetypes, fts)
+        end
+        local function with_file(rel_path)
+          return vim.fn.filereadable(root_dir .. '/' .. rel_path) == 1
+        end
+        if isft{'c', 'cpp'} and with_file 'meson.build' then
+          cmd = meson_buildandrun_cmd(root_dir, fname)
+        elseif isft{'javascript', 'typescript'} and with_file 'package.json' then
+          cmd = wrap_cmd('npm --prefix ' .. escape(root_dir) .. ' start')
+        end
       end
     end
   end
