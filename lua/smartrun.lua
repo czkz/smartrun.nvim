@@ -24,7 +24,7 @@ local function get_meson_build_dir(root_dir)
   return root_dir .. '/build'
 end
 
-local function pick_meson_exe(root_dir, build_dir, this_file)
+local function pick_meson_target(root_dir, build_dir, this_file)
   local data = vim.fn.system('meson introspect ' .. escape(build_dir) .. ' --targets')
   local targets = vim.json.decode(data)
   -- Pick executable compiled from current file
@@ -33,8 +33,9 @@ local function pick_meson_exe(root_dir, build_dir, this_file)
       for _, target_source in pairs(target.target_sources) do
         for _, source in pairs(target_source.sources) do
           if source == this_file then
-            M.state.last_picked_targets[root_dir] = target.filename[1]
-            return target.filename[1]
+            local ret = { path = target.filename[1], name = target.name }
+            M.state.last_picked_targets[root_dir] = ret
+            return ret
           end
         end
       end
@@ -47,7 +48,7 @@ local function pick_meson_exe(root_dir, build_dir, this_file)
   -- Pick first executable
   for _, target in pairs(targets) do
     if target.type == 'executable' then
-      return target.filename[1]
+      return { path = target.filename[1], name = target.name }
     end
   end
 end
@@ -58,9 +59,9 @@ end
 
 local function meson_buildandrun_cmd(root_dir, this_file)
   local build_dir = get_meson_build_dir(root_dir)
-  local exe = pick_meson_exe(root_dir, build_dir, this_file)
+  local target = pick_meson_target(root_dir, build_dir, this_file)
   return
-    wrap_cmd('ninja -C ' .. build_dir .. ' && ' .. escape(exe))
+    wrap_cmd('ninja -C ' .. escape(build_dir) .. ' ' .. escape(target.name) .. ' && ' .. escape(target.path))
 end
 
 M.run = function()
