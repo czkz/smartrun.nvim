@@ -31,11 +31,13 @@ local function pick_meson_target(root_dir, build_dir, this_file)
   for _, target in pairs(targets) do
     if target.type == 'executable' then
       for _, target_source in pairs(target.target_sources) do
-        for _, source in pairs(target_source.sources) do
-          if source == this_file then
-            local ret = { path = target.filename[1], name = target.name }
-            M.state.last_picked_targets[root_dir] = ret
-            return ret
+        if (target_source.sources) then
+          for _, source in pairs(target_source.sources) do
+            if source == this_file then
+              local ret = { path = target.filename[1], name = target.name }
+              M.state.last_picked_targets[root_dir] = ret
+              return ret
+            end
           end
         end
       end
