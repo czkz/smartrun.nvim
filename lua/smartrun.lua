@@ -100,7 +100,7 @@ M.run = function()
       'read -n1 ans; [ "$?" = 0 -a "$ans" = "" ] && ans=n || echo; ' ..
       'if [ "$ans" = "y" ]; then ' .. action .. ' && exit; else exit; fi'
   end
-  require'toggleterm'.exec(cmd)
+  require'toggleterm'.exec(cmd, nil, nil, nil, nil, nil, false, nil)
 end
 
 return M
